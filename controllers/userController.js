@@ -19,15 +19,11 @@ export const Register = async (req, res) => {
         });
 
         await user.save();
-        const token = jwt.sign({id:user.id,userRole:user.userRole },process.env.JWT_SECRET_KEY, {expiresIn:'1h'});
+        const token = jwt.sign({ id: user._id, userRole: user.userRole, userEmail:user.userEmail }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
         res.status(201).json({
             message: "Account created successfully!",
-            user: {
-                ...user.toObject(),
-                tokens: {
-                    accessToken:token,
-                }
-            },
+            user: user,
+            token:token
         });
     } catch (error) {
         res.status(500).json({ message: "Failed to register user", error: error.message });
@@ -48,15 +44,12 @@ export const Login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ id: user._id, userRole: user.userRole }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, userRole: user.userRole, userEmail:user.userEmail }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
 
-        res.json({
-            user: {
-                _id: user._id,
-                userEmail: user.userEmail,
-                userRole: user.userRole, // <-- Add this line
-                accessToken: token
-            }
+        res.status(200).json({
+            user: user,
+            token: token,
+            message:'Login Successfully'
         });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
